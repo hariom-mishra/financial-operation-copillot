@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String
+from sqlalchemy import String, ForeignKey, Integer
 from core.db import Base 
 
 class Expenses(Base):
@@ -10,3 +10,4 @@ class Expenses(Base):
     category: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     date: Mapped[str] = mapped_column(String(10), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)

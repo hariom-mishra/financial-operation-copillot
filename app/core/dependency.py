@@ -1,9 +1,10 @@
 from core.db import get_db
-from fastapi import Depends
+from fastapi import Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.security import decode_token
-from core.exceptions import InvalidCredentialsException, TokenNotProvidedException, ExpenseException
+from core.exceptions import InvalidCredentialsException, TokenNotProvidedException, ExpenseException, UnauthorizedException, UserNotFoundException
 from services.user_services import UserService
+from schema.users import Users
 
 
 async def get_current_user(
@@ -30,10 +31,10 @@ class RoleChecker:
     def __init__(self, allowed_roles):
         self.allowed_roles = allowed_roles
 
-    def __call__(self, user:Users):
+    def __call__(self, user: Users = Depends(get_current_user)):
         if user.role not in self.allowed_roles:
             raise UnauthorizedException("You are not authorized to perform this action")
-        return True
+        return user
 
     
     

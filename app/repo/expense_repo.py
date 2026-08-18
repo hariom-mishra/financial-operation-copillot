@@ -10,9 +10,10 @@ class ExpenseRepo:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_expenses(self, limit: int, offset: int, category: Optional[str], from_date: Optional[date], to_date: Optional[date]):
+    async def get_expenses(self, user_id: int, limit: int, offset: int, category: Optional[str], from_date: Optional[date], to_date: Optional[date]):
         try:
             query = select(Expenses)
+            query = query.where(Expenses.user_id == user_id)
             if category:
                 query = query.where(Expenses.category == category)
             if from_date:

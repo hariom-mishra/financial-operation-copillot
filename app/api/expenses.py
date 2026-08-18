@@ -13,10 +13,14 @@ async def add_expense(expense: AddExpenses, current_user = Depends(get_current_u
     pass
 
 #get expense 
-@router.get("/", response_model=List[ExpenseResponse], current_user = Depends(get_current_user))
-async def get_expense(params: GetExpenses = Depends(), db = Depends(get_db)):
+@router.get("/", response_model=List[ExpenseResponse])
+async def get_expense(
+    params: GetExpenses = Depends(),
+    db = Depends(get_db),
+    current_user = Depends(get_current_user)
+    ):
     service = ExpenseServices(db)
-    return await service.get_expenses(params)
+    return await service.get_expenses(current_user.id, params)
 
 #spending summary
 @router.get("/summary")

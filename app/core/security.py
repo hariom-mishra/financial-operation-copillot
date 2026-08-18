@@ -1,5 +1,6 @@
 import bcrypt
-import joserfc as jwt
+from joserfc import jwt
+from joserfc import jwk
 from models.users import BaseUser
 from core.settings import settings
 from datetime import datetime, timezone, timedelta
@@ -24,7 +25,7 @@ def create_access_token(user: BaseUser):
             "alg":settings.ALG,
         }
 
-        secret = jwt.jwk.import_key(settings.SECRET, "oct")
+        secret = jwk.import_key(settings.SECRET, "oct")
         token = jwt.encode(header,claims, secret)
         return token
     except Exception as e:
@@ -42,21 +43,26 @@ def create_refresh_token(user: BaseUser):
             "alg":settings.ALG,
         }
 
-        secret = jwt.jwk.import_key(settings.SECRET, "oct")
+        secret = jwk.import_key(settings.SECRET, "oct")
         token = jwt.encode(header,claims, secret)
         return token
     except Exception as e:
         raise TokenCreationException(str(e))
 
-def decode_token(token:str):
+def decode_token(token: str):
     try:
-        header, claims = jwt.decode(token, jwt.jwk.import_key(settings.SECRET, "oct"))
+        secret = jwk.import_key(settings.SECRET, "oct")
+        decoded = jwt.decode(token, secret)
+        claims = decoded.claims
 
-        if claims["exp"] < datetime.now(timezone.utc):
-            raise TokenExpiredException()
+        exp = claims.get("exp")
+        if exp is not None:
+            exp_dt = datetime.fromtimestamp(exp, tz=timezone.utc) if isinstance(exp, (int, float)) else exp
+            if exp_dt < datetime.now(timezone.utc):
+                raise TokenExpiredException()
 
         return claims
-    except jwt.exceptions.InvalidClaimError as e:
-        raise TokenValidationException(str(e))
+    except TokenExpiredException:
+        raise
     except Exception as e:
         raise TokenValidationException(str(e))

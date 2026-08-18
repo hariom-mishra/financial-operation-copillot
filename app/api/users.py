@@ -8,8 +8,12 @@ from core.dependency import RoleChecker
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/", response_model=List[UserResponse], admin_user = RoleChecker(["admin"]))
-async def get_users(params: GetUsersParams = Depends(), db = Depends(get_db)):
+@router.get("/", response_model=List[UserResponse])
+async def get_users(
+    params: GetUsersParams = Depends(),
+     db = Depends(get_db),
+     admin = Depends(RoleChecker(["admin"]))   
+     ):
     try:
         service = UserService(db)
         return await service.get_users(params)
