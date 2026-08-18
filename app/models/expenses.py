@@ -9,7 +9,7 @@ class BaseExpenses(BaseModel):
     date: str
 
 class AddExpenses(BaseExpenses):
-    id: int
+    pass
 
 
 class ExpenseResponse(BaseExpenses):
