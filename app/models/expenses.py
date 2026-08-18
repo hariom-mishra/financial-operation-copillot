@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
+from datetime import date
 
 class BaseExpenses(BaseModel):
     amount: float
@@ -11,15 +12,22 @@ class AddExpenses(BaseExpenses):
     id: int
 
 
-class ExpensesResponse(BaseExpenses):
+class ExpenseResponse(BaseExpenses):
     id: int
 
-    model_config = configDict(
+    model_config = ConfigDict(
         from_attributes=True
     )
 
-class SearchExpenses(BaseModel):
+class GetExpenses(BaseModel):
     category: Optional[str] = None
-    date: Optional[str] = None
+    from_date: Optional[date] = None
+    to_date: Optional[date] = None
     amount: Optional[float] = None
     description: Optional[str] = None
+    limit: Optional[int] = 10
+    offset: Optional[int] = 0
+
+class SearchExpenses(BaseModel):
+    keyword: str
+

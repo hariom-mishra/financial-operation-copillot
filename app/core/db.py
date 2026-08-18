@@ -14,7 +14,7 @@ async def get_db():
         async with session() as db:
             yield db
     except Exception as e:
-        logger.error(f"Database error: {e}")
+        print(f"Database error: {e}")
         raise
     
     
