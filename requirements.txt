@@ -11,4 +11,4 @@ langgraph
 langchain_openai
 greenlet
 passlib[bcrypt]
-python-jose[cryptography]
+joserfc

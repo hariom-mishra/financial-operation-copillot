@@ -13,6 +13,7 @@ class LoginUser(BaseUser):
 class UserResponse(BaseUser):
     id: int
     role: str
+    name: str
     model_config = ConfigDict(
         from_attributes=True
     )

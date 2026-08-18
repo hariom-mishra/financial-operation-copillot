@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     DB_PORT: str
     DB_USER: str
     DB_PASS: str
+    AlG: str
+    SECRET: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    
 
     @computed_field
     @property

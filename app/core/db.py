@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from core.settings import settings
 from sqlalchemy.orm import DeclarativeBase
+from core.exceptions import DatabaseConnectionException
 
 db_engine = create_async_engine(settings.DB_URL)
 
@@ -14,7 +15,6 @@ async def get_db():
         async with session() as db:
             yield db
     except Exception as e:
-        print(f"Database error: {e}")
-        raise
+        raise DatabaseConnectionException(str(e))
     
     
