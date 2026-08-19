@@ -12,9 +12,16 @@ class Base(DeclarativeBase):
 
 async def get_db():
     try:
-        async with session() as db:
-            yield db
+        db = session()
     except Exception as e:
-        raise DatabaseConnectionException(str(e))
+        raise DatabaseConnectionException(f"Failed to open DB session: {e}")
+    try:
+        async with db:
+            yield db
+    except DatabaseConnectionException:
+        raise
+    except Exception:
+        # Re-raise exceptions from route handlers without wrapping them
+        raise
     
     
