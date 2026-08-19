@@ -1,10 +1,21 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
+from enum import Enum
+
+class ExpenseCategory(str, Enum):
+    FOOD = "Food"
+    TRANSPORTATION = "Transportation"
+    HOUSING = "Housing"
+    UTILITIES = "Utilities"
+    ENTERTAINMENT = "Entertainment"
+    HEALTH = "Health"
+    SHOPPING = "Shopping"
+    OTHERS = "Others"
 
 class BaseExpenses(BaseModel):
     amount: float
-    category: str
+    category: ExpenseCategory
     description: Optional[str] = None
     date: datetime
 
@@ -14,7 +25,7 @@ class AddExpenses(BaseExpenses):
 class UpdateExpenses(BaseModel):
     """All fields optional — only provided fields will be updated."""
     amount: Optional[float] = None
-    category: Optional[str] = None
+    category: Optional[ExpenseCategory] = None
     description: Optional[str] = None
     date: Optional[datetime] = None
 
@@ -26,7 +37,7 @@ class ExpenseResponse(BaseExpenses):
     )
 
 class GetExpenses(BaseModel):
-    category: Optional[str] = None
+    category: Optional[ExpenseCategory] = None
     from_date: Optional[datetime] = None
     to_date: Optional[datetime] = None
     amount: Optional[float] = None
@@ -38,7 +49,7 @@ class SearchExpenses(BaseModel):
     keyword: str
 
 class CategorySummary(BaseModel):
-    category: str
+    category: ExpenseCategory
     total: float
     count: int
 

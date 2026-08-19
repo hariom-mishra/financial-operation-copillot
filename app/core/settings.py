@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     ALG: str
     SECRET: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    OPENAI_API_KEY: str
     
 
     @computed_field
