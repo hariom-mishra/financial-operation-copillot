@@ -3,6 +3,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from core.db import db_engine, Base
+from schema.users import Users  # noqa: F401
+from schema.expenses import Expenses  # noqa: F401
 from api.router import router as finops_router
 from core.exceptions import ExpenseException
 

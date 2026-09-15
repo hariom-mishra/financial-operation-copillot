@@ -12,9 +12,10 @@ class ExpenseRepo:
 
     async def get_expenses(self, user_id: int, limit: int, offset: int, category: Optional[str], from_date: Optional[datetime], to_date: Optional[datetime]):
         try:
-            query = select(Expenses).where(Expenses.user_id == user_id)
+            query = select(Expenses).where(Expenses.user_id == int(user_id))
             if category:
-                query = query.where(Expenses.category == category)
+                cat_val = category.value if hasattr(category, "value") else str(category)
+                query = query.where(Expenses.category == cat_val)
             if from_date:
                 query = query.where(Expenses.date >= from_date)
             if to_date:
@@ -28,12 +29,13 @@ class ExpenseRepo:
     async def add_expense(self, expense_data: AddExpenses, user_id: int):
         try:
             expense_date = expense_data.date if expense_data.date else datetime.now(timezone.utc)
+            cat_val = expense_data.category.value if hasattr(expense_data.category, "value") else str(expense_data.category)
             new_expense = Expenses(
                 amount=expense_data.amount,
-                category=expense_data.category,
+                category=cat_val,
                 description=expense_data.description,
                 date=expense_date,
-                user_id=user_id
+                user_id=int(user_id)
             )
             self.db.add(new_expense)
             await self.db.commit()
@@ -48,7 +50,7 @@ class ExpenseRepo:
             pattern = f"%{keyword}%"
             query = (
                 select(Expenses)
-                .where(Expenses.user_id == user_id)
+                .where(Expenses.user_id == int(user_id))
                 .where(
                     or_(
                         Expenses.category.ilike(pattern),
@@ -66,11 +68,13 @@ class ExpenseRepo:
 
     async def get_summary(self, user_id: int, from_date: Optional[datetime] = None, to_date: Optional[datetime] = None):
         try:
-            base_filter = [Expenses.user_id == user_id]
+            base_filter = [Expenses.user_id == int(user_id)]
             if from_date:
-                base_filter.append(Expenses.date >= from_date)
+                query_from = datetime.fromisoformat(from_date) if isinstance(from_date, str) else from_date
+                base_filter.append(Expenses.date >= query_from)
             if to_date:
-                base_filter.append(Expenses.date <= to_date)
+                query_to = datetime.fromisoformat(to_date) if isinstance(to_date, str) else to_date
+                base_filter.append(Expenses.date <= query_to)
 
             # Per-category aggregation
             cat_query = (
@@ -86,14 +90,14 @@ class ExpenseRepo:
             cat_res = await self.db.execute(cat_query)
             by_category = cat_res.fetchall()
 
-            total_spent = sum(row.total for row in by_category)
-            expense_count = sum(row.count for row in by_category)
+            total_spent = sum(float(row.total or 0) for row in by_category)
+            expense_count = sum(int(row.count or 0) for row in by_category)
 
             return {
                 "total_spent": total_spent,
                 "expense_count": expense_count,
                 "by_category": [
-                    {"category": row.category, "total": row.total, "count": row.count}
+                    {"category": row.category, "total": float(row.total or 0), "count": int(row.count or 0)}
                     for row in by_category
                 ],
             }
