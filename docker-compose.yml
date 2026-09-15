@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fincopilot_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-fincopilot}
+      POSTGRES_USER: ${DB_USER:-root}
+      POSTGRES_PASSWORD: ${DB_PASS:-Radheradhe34}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-root} -d ${DB_NAME:-fincopilot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: fincopilot_api
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-fincopilot}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASS=${DB_PASS:-Radheradhe34}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

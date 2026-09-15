@@ -61,8 +61,14 @@ pip install -r requirements.txt
 
 ### 4. Run the Application
 
+**Option A — Locally with Uvicorn:**
 ```bash
 uvicorn main:app --app-dir app --reload --port 8000
+```
+
+**Option B — Using Docker Compose:**
+```bash
+docker compose up --build
 ```
 
 Access Swagger interactive documentation at: [http://localhost:8000/docs](http://localhost:8000/docs)
